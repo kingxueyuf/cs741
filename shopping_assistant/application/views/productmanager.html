@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Robin shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+    <!-- jQuery -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <!-- Bootstrap -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+
+    <!-- upload File-->
+    <script src="http://blueimp.github.io/jQuery-File-Upload/js/vendor/jquery.ui.widget.js"></script>
+    <script src="http://blueimp.github.io/jQuery-File-Upload/js/jquery.iframe-transport.js"></script>
+    <script src="http://blueimp.github.io/jQuery-File-Upload/js/jquery.fileupload.js"></script>
+
+    <script type="text/javascript">
+       $(document).ready(function()
+      {
+              $.ajax(
+              {
+                  type:"GET",
+                  url:"/index.php/ShopAssistant/getAllProduct",
+                  success:function(data)
+                  {
+                    $.each(data,function(i,item)
+                    {
+                        var oneLine = "<tr>";
+                        oneLine +="<td>" +item['id']+"</td>";
+                        oneLine +="<td>" +"<img class=\"img\" alt=\"225x225\" width=225px  height=225px;\" src=\""+item['picture_url']+"\"</img>" +"</td>";
+                        oneLine +="<td>" +item['name']+"</td>";
+                        oneLine +="<td>" +item['normal_price']+"</td>";
+                        oneLine +="<td>" +item['member_price']+"</td>";
+                        oneLine +="<td>" +item['category']+"</td>";
+                        oneLine +="<td>" +item['location'] +"</td>";
+                        oneLine +="<td>" +item['amount'] + "</td>";
+                        oneLine +="<td>"+item['brand']+"</td>";
+                        oneLine +="<td>"+""+"</td>";
+                        oneLine +="</tr>";
+                        $("#tbody").append(oneLine);
+                    });
+                  },
+                  dataType:"json",
+              });
+      
+            $(function () {
+            //文件上传地址
+              var url = 'http://localhost:90/index.php/ShopAssistant/upload';
+              //初始化，主要是设置上传参数，以及事件处理方法(回调函数)
+              $('#fileupload').fileupload({
+                  autoUpload: true,//是否自动上传
+                  url: url,//上传地址
+                  dataType: 'text',
+                  success: function (data) {//设置文件上传完毕事件的回调函数
+                    if(data == "error")
+                    {
+                      alert("error");
+                    }else
+                    {
+                      $('#files').append("<h3>You have uploaded the file :"+data+"</h3>");
+                    }
+                  },
+                  // progressall: function (e, data) {//设置上传进度事件的回调函数
+                  //     var progress = parseInt(data.loaded / data.total * 100, 10);
+                  //     $('#progress .bar').css(
+                  //         'width',
+                  //         progress + '%'
+                  //     );
+                  // }
+              });
+          });
+
+          $(function()
+          {
+            $("#close_sub").click(function()
+            {
+              $('#files').empty();
+            });
+
+            $("#save_sub").click(function()
+            {
+              $('#files').empty();
+              
+              var name = $("#name").attr("value");
+              var price = $("#price").attr("value");
+              var v_price = $("#v_price").attr("value");
+              var location = $("#location").attr("value");
+              var amount = $("#amount").attr("value");
+              var detail = $("#detail").attr("value");
+              var other = $("#other").attr("value");
+              var category = $("#category").attr("value");
+              var brand = $("#brand").attr("value");
+
+              var query = "name="+name+"&"+"price="+price+"&v_price="+v_price+"&location="+location+"&amount="+amount+"&detail="+detail+"&other="+other+"&category="+category+"&brand="+brand;
+              $.ajax(
+              {
+                      type:"POST",
+                      url:"/index.php/ProductManager/addProduct",
+                      data:query,
+                      success:function(data)
+                      {
+                        if(data =="success")
+                        {
+                          alert("success");
+                        }else
+                        {
+                          alert("failure");
+                        }
+                      },
+                      dataType:"text",
+              });
+
+            });
+
+          });
+      })
+    </script>
+
+    <style type="text/css">
+
+    /* model */
+      input{
+        width:100%;
+      }
+
+     /*  table css */
+      table {
+          border-collapse: separate;
+          border-spacing: 0 5px;
+      }
+
+      thead th {
+          background-color: #006DCC;
+          color: white;
+      }
+
+      tbody td {
+      /*    background-color: #EEEEEE;*/
+
+      }
+
+      tr td:first-child,
+      tr th:first-child {
+          border-top-left-radius: 6px;
+          border-bottom-left-radius: 6px;
+      }
+
+      tr td:last-child,
+      tr th:last-child {
+          border-top-right-radius: 6px;
+          border-bottom-right-radius: 6px;
+      }
+
+    </style>
+  </head>
+
+  <body youdao ="bind">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="#">Product Management</a>
+        <ul class="nav pull-right">
+          <li><a href="#">welcome admin</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="user-toolbar nav">
+      <span>&nbsp;</span>
+      <button class="btn btn-primary create-user" data-toggle="modal" data-target="#myModal">Add a new product</button>
+      <span>&nbsp;</span>
+      <button class="btn btn-danger delete-user">Delete a product</button>
+      <span>&nbsp;</span>
+      <button class="btn btn-warning delete-user">Change a product</button>
+      <span>&nbsp;</span>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal hide fade" id="myModal" tabindex="-1" role="dialog">
+      <div class="modal-header">
+      <h3 id="myModalLabel">Add Product</h3>
+      </div>
+      <div class="modal-body">
+        <div class="row-input">
+          Name<input id = "name" class="input" type="text">
+        </div>
+        <div class="row-input">
+          Price<input id = "price" class="input" type="text">
+        </div>
+        <div class="row-input">
+          VIP Price<input id = "v_price" class="input" type="text">
+        </div>
+        <div class="row-input">
+          Location<input id = "location" class="input" type="text">
+        </div>
+        <div class="row-input">
+          Amount<input  id = "amount" class="input" type="text">
+        </div>
+
+        <div class="row-input">
+          Brand<input  id = "brand" class="input" type="text">
+        </div>
+        <div class="row-input">
+          Category<input  id = "category" class="input" type="text">
+        </div>
+
+        <div class="row-input">
+          Detail<input  id = "detail" class="input" type="text">
+        </div>
+        <div class="row-input">
+          Other<input id = "other" class="input" type="text">
+        </div>
+
+          <div class="row-input">
+            <span class="btn btn-success fileinput-button">
+                <i class="icon-plus icon-white"></i>
+                <span>Choose a picture</span>
+                <input id="fileupload" type="file" name="userfile" multiple>
+            </span>
+            <br>
+            <!-- 已经上传的文件列表 -->
+            <div id="files"></div>    
+          </div>
+      </div>
+
+      <div class="modal-footer">
+        <a id = "close_sub" href="#" class="btn" data-dismiss="modal">close</a>
+        <a id = "save_sub" href="#" class="btn btn-primary" data-dismiss="modal">save</a>
+      </div>
+    </div>
+
+    <div>
+      <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Id</th>
+                          <th>Picture</th>
+                          <th>Name</th>
+                          <th>Price</th>
+                          <th>Price(VIP)</th>
+                          <th>Category</th>
+                          <th>Location</th>
+                          <th>Amount</th>
+                          <th>Details</th>
+                          <th>Other</th>
+                      </tr>
+                  </thead>
+                  <tbody id='tbody'>
+                    
+                  </tbody>
+        </table>
+    </div>
+  </body>
+
+</html>

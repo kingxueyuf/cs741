@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>R & A shop</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   
+   <!-- jQuery -->
+    <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    <script src="/jquery-cookie/jc/jquery.cookie.js"></script>
+    <!-- Bootstrap -->
+    <link href="//netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    <script src="http://www.see-source.com/bootstrap/js/bootstrap-affix.js"></script>
+    <script type="text/javascript">
+
+      $(document).ready(function()
+      {
+        $("#exit").hide();
+        var username = $.cookie("login-user");
+        if(username != null && username != "" && username!="null")
+        {
+            $("#login").hide();
+            $("#register").hide();
+            $("#welcome").append(" Welcome "+username);
+            $("#exit").show();
+        }
+
+          $("#exit").live('click',function()
+          {
+            $.cookie("login-user", null);
+            $("#welcome").empty();
+            $("#welcome").hide();
+            $("#login").show();
+            $("#register").show();
+            $("#exit").hide();
+          });
+
+          $("#sub-register").live('click',function()
+          {
+              var username = $("#r_name").attr("value");
+              var password = $("#r_pass").attr("value");
+              var password2 = $("#r_pass2").attr("value");
+
+              if(username == "" || username == null || password == "" || password == null || password2 == "" || password2 == null)
+              {
+                alert("please fill up all input");
+              }
+              else if(password != password2)
+              {
+                alert("two passwords input are different");
+              }else
+              {
+                 var query = "username="+username+"&"+"password="+password;
+                  $.ajax(
+                  {
+                      type:"POST",
+                      url:"/index.php/UserManager/addUser",
+                      data:query,
+                      success:function(data)
+                      {
+                        if(data == "success")
+                        {
+                          alert("success registration");
+                          location.href ="shop";
+                        }
+                      },
+                      dataType:"text",
+                  });
+              }
+          });
+
+          $("#affix_test li").live('click',function()
+          {
+              $("#tbody").empty();
+              value = $(this).attr('id');
+              var query = "category="+value;
+              $.ajax(
+              {
+                  type:"GET",
+                  url:"/index.php/ShopAssistant/cate_pro_list",
+                  data:query,
+                  success:function(data)
+                  {
+                    $.each(data,function(i,item)
+                    {
+                        var oneLine = "<tr>";
+                        oneLine +="<td>" +item['id']+"</td>";
+                        oneLine +="<td>" +"<img class=\"img\" alt=\"225x225\" width=225px  height=225px;\" src=\""+item['picture_url']+"\"</img>" +"</td>";
+                        oneLine +="<td>"+"<font color=\"blue\">" + item['name']+"</font>"+"</td>";
+                        oneLine +="<td>" +item['normal_price']+"</td>";
+                        oneLine +="<td>" +"<font color=\"red\"><b>"+item['member_price']+"</b></font>"+"</td>";
+                        oneLine +="<td>" +item['location'] +"</td>";
+                        oneLine +="<td>" +item['amount'] + "</td>";
+                        oneLine +="<td>"+item['brand']+"</td>";
+                        oneLine +="<td>"+""+"</td>";
+                        oneLine +="</tr>";
+                        $("#tbody").append(oneLine);
+                    });
+                  },
+                  dataType:"json",
+              });
+          });
+          
+        $("#search").live('click',function()
+        {
+             var keyword = $("#keyword").attr("value");
+             if(keyword == null || keyword=="")
+             {
+                alert("please input something");
+             }
+            else
+             {
+                $("#tbody").empty();
+                var query = "keyword="+keyword;
+                $.ajax(
+                {
+                      type:"GET",
+                      url:"/index.php/ShopAssistant/search",
+                      data:query,
+                      success:function(data)
+                      {
+                        $.each(data,function(i,item)
+                        {
+                            var oneLine = "<tr>";
+                            oneLine +="<td>" +item['id']+"</td>";
+                            oneLine +="<td>" +"<img class=\"img\" alt=\"225x225\" width=225px  height=225px;\" src=\""+item['picture_url']+"\"</img>" +"</td>";
+                            oneLine +="<td>"+"<font color=\"blue\">" + item['name']+"</font>"+"</td>";
+                            oneLine +="<td>" +item['normal_price']+"</td>";
+                            oneLine +="<td>" +"<font color=\"red\">"+item['member_price']+"</font>"+"</td>";
+                            oneLine +="<td>" +item['location'] +"</td>";
+                            oneLine +="<td>" +item['amount'] + "</td>";
+                            oneLine +="<td>"+item['brand']+"</td>";
+                            oneLine +="<td>"+""+"</td>";
+                            oneLine +="</tr>";
+                            $("#tbody").append(oneLine);
+                        });
+                      },
+                      dataType:"json",
+                });
+             }
+        });
+
+      $("#signin").live('click',function()
+      {
+        var username = $("#l_name").attr("value");
+        var password = $("#l_pass").attr("value");
+        if(username == null || username=="" ||password ==null || password =="")
+        {
+          alert("please input your account info");
+        }else
+        {
+            //do ajax post
+            var query ="username="+username+"&"+"password="+password;
+              $.ajax(
+              {
+                  type:"POST",
+                  url:"/index.php/UserManager/checkLogin",
+                  data:query,
+                  success:function(data)
+                  {
+                    if(data =="success")
+                    {
+                        $("#login").hide();
+                        $("#register").hide();
+                        $("#welcome").show();
+                        $("#welcome").append(" Welcome "+username);
+                        $("#exit").show();
+                    }else
+                    {
+                      alert("wrong username with password");
+                    }
+                  },
+                  dataType:"text",
+              });
+        }
+      });
+
+      });
+    </script>
+
+    <style type="text/css">
+
+
+    /* body css */
+      body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+        position:relative;
+      }
+
+      /*  table css */
+      table {
+          border-collapse: separate;
+          border-spacing: 0 5px;
+           /*background-color: #EEEEEE;*/
+      }
+
+      thead th {
+          background-color: #006DCC;
+          color: white;
+      }
+
+      tbody td {
+          /*background-color: #EEEEEE;*/
+
+      }
+
+      tr td:first-child,
+      tr th:first-child {
+          border-top-left-radius: 6px;
+          border-bottom-left-radius: 6px;
+      }
+
+      tr td:last-child,
+      tr th:last-child {
+          border-top-right-radius: 6px;
+          border-bottom-right-radius: 6px;
+      }
+
+      .nav .btn{
+
+        margin-left: 10px;
+
+      }
+
+      .welcome-msg{
+        margin-left: 10px;
+        margin-top: 10px; 
+      }
+
+      .modal-dialog{
+        width: 100%;
+      }
+      .modal-dialog .row{
+        margin-left: 10px;
+        width: 100%;
+      }
+
+
+    </style>
+  </head>
+  <body youdao ="bind">
+    <!-- // <script src="http://code.jquery.com/jquery.js"></script> -->
+   <!--  // <script src="js/bootstrap.min.js"></script>
+
+    // <script src="./Bootstrap, from Twitter_files/jquery.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-transition.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-alert.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-modal.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-dropdown.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-scrollspy.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-tab.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-tooltip.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-popover.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-button.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-collapse.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-carousel.js"></script>
+    // <script src="./Bootstrap, from Twitter_files/bootstrap-typeahead.js"></script> -->
+
+<!-- nav-->
+<div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+<!--           <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button> -->
+          <a class="brand" href="#">R & A shop</a>
+          <div class="nav-collapse collapse">
+            <ul class="nav">
+              <li ><a href="home">Home</a></li>
+              <li class= "active"><a href="#">Shop</a></li>
+              <li><a href="#">Contact</a></li>
+              <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                <ul class="dropdown-menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li class="divider"></li>
+                  <li class="nav-header">Nav header</li>
+                  <li><a href="#">Separated link</a></li>
+                  <li><a href="#">One more separated link</a></li>
+                </ul>
+              </li>
+            </ul>
+            <ul class="nav pull-right">
+               <li> 
+                  <div class="navbar-search pull-left">
+                    <input id="keyword"type="text" class="span2" placeholder="Search">
+                  </div>
+                </li>
+                <li>
+                  <button id="search" type="submit" class="btn btn-warning"> Submit</button>
+                </li>
+                <li>
+                  <button id="register" data-toggle="modal" href="#myModal" type="submit" class="btn btn-info">  Register
+                  </button>
+                </li>
+
+                <li>
+                  <button id="login" type="submit" data-toggle="modal" href="#myModal2" class="btn btn-success"> Login</button>
+                </li>
+
+                <li>
+                  <button id="exit" type="submit" class="btn btn-success"> Sign out</button>
+                </li>
+
+                <li>
+                  <div class="welcome-msg">
+                    <span class="label label-success"id="welcome"></span>
+                  </div>
+                </li>
+
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+
+
+<!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Welcome to be a new VIP :)</h4>
+        </div>
+        <div class="modal-body">
+          <div class="row">Please Input Your Account Name</div>
+           <div class="row"><input id="r_name"class="span2" type="text" placeholder="Email"></div>
+          
+          <div class="row">Please Input Your Password</div>
+          <div class="row">
+            <input id="r_pass"class="span2" type="password" placeholder="Password">
+          </div>
+
+          <div class="row">
+            Input Password Again</div>
+          <div class="row">
+            <input id="r_pass2"class="span2" type="password" placeholder="Password">
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="sub-register"type="button" class="btn btn-primary" data-dismiss="modal">Submit</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+
+  <!-- Modal -->
+  <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Please sign in:)</h4>
+        </div>
+        <div class="modal-body">
+            <div class="row">
+              Your Account Name
+            </div>
+            <div class="row">
+              <input id="l_name"class="span2" type="text" placeholder="Email">
+            </div>
+
+            <div class="row">
+              Your Password
+            </div>
+            <div class="row">
+              <input id="l_pass"class="span2" type="password" placeholder="Password">
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button id="signin"type="button" class="btn btn-primary" data-dismiss="modal">Submit</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+
+<!-- start of containner-->
+<div id="content" class="container-fluid">
+    <div class="row-fluid">
+      
+      <!--Sidebar content-->
+      <div class="span2 sidebar">
+          <ul id  = 'affix_test' class = "nav nav-tabs nav-stacked" data-spy="affix" data-offset-top="40">
+            <li id = 'electronic'><a href="#">Electronics</a></li>
+            <li id = 'fashion'><a href='#'>Fashion</a></li>
+            <li id = 'sporting goods'><a href='#'>Sporting goods</a></li>
+            <li id = 'toys hobbies'><a href="#">Toys & hobbies</a></li>
+            <li id = 'home garden'><a href='#'>Home & garden</a></li>
+            <li id = 'music'><a href='#'>Music</a></li>
+            <li id = 'motors'><a href='#'>Motors</a></li>
+            <li id = 'entertainment'><a href='#'>Entertainment</a></li>
+            <li id = 'business industrial'><a href='#'>Business & Industrial</a></li>
+            <li id = 'gift cards coupons'><a href='#'>Gift Cards & Coupons</a></li>
+            <li id = 'tickets experiences'><a href='#'>Tickets & Experiences</a></li>
+            <li id = 'travel'><a href='#'>Travel</a></li>
+            <li id = 'video games consoles'><a href='#'>Video Games & Consoles</a></li>
+          </ul>
+      </div>
+
+      <!--Body content-->
+      <div class="span10">
+          <div class="span10">
+                    <div id="photograph" class="carousel slide">
+                        <ol class="carousel-indicators">
+                            <li data-target="#photograph" data-slide-to="0" class=""> </li>
+                            <li data-target="#photograph" data-slide-to="1" class=""></li>
+                            <li data-target="#photograph" data-slide-to="2" class=""></li>
+                            <li data-target="#photograph" data-slide-to="3" class=""></li>
+                            <li data-target="#photograph" data-slide-to="4" class=""></li>
+                            <li data-target="#photograph" data-slide-to="5" class=""></li>
+                        </ol>
+                          <!-- Carousel items -->
+                        <div class="carousel-inner">
+                            <div class="item active"><a target="_blank"><img src="/pic/carousel1.jpg"></a></div>
+                            <div class="item"><a target="_blank"><img src="/pic/carousel5.jpg"></a></div>
+                            <div class="item"><a target="_blank"><img src="/pic/carousel3.jpg"></a></div>
+                            <div class="item"><a target="_blank"><img src="/pic/carousel6.jpg"></a></div>
+                            <div class="item"><a target="_blank"><img src="/pic/carousel2.jpg"></a></div>
+                            <div class="item"><a target="_blank"><img src="/pic/carousel7.jpg"></a></div>
+                        </div>
+                        
+                        <a class="carousel-control left" href="#photograph" data-slide="prev"></a>
+                        <a class="carousel-control right" href="#photograph" data-slide="next"></a>
+                    </div>
+                </div>
+    
+        <!--start -->
+              <table class="table">
+                  <thead>
+                      <tr>
+                          <th>Id</th>
+                          <th>Picture</th>
+                          <th>Name</th>
+                          <th>Price</th>
+                          <th>Price(VIP)</th>
+                          <th>Location</th>
+                          <th>Amount</th>
+                          <th>Details</th>
+                          <th>Other</th>
+                      </tr>
+                  </thead>
+                  <tbody id='tbody'>
+
+                  </tbody>
+              </table>
+        <!--end -->
+      </div>
+
+    </div>
+</div>
+
+
+
+  </body>
+
+</html>
